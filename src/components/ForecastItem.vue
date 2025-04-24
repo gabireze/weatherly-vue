@@ -1,45 +1,34 @@
 <script lang="ts" setup>
 import { useRouter } from "vue-router";
+import { useWeatherStore, ForecastDay } from "../stores/weatherStore";
 
+const props = defineProps<{ day: ForecastDay }>();
 const router = useRouter();
-
-interface Props {
-  day: string;
-  icon: any;
-  iconName: string; // você vai precisar adicionar isso no ForecastList
-  high: number | string;
-  low: number | string;
-}
-
-const props = defineProps<Props>();
+const store = useWeatherStore();
 
 function goToDetails() {
+  store.setForecast(props.day);
+  console.log("Forecast set:", props.day);
   router.push({
     name: "WeatherDetails",
-    params: { day: props.day },
-    state: {
-      forecast: {
-        day: props.day,
-        temp_max: Number(props.high),
-        temp_min: Number(props.low),
-        weather: props.iconName,
-      },
-    },
+    params: { timestamp: props.day.timestamp.toString() },
   });
 }
 </script>
 
 <template>
   <div
-    @click="goToDetails"
     class="flex justify-between items-center border-t border-white/30 py-1 cursor-pointer hover:bg-white/10 transition"
+    @click="goToDetails"
   >
-    <span class="text-sm w-1/3">{{ props.day }}</span>
-    <span class="w-1/3 text-center">
-      <component :is="props.icon" class="w-5 h-5 text-white inline" />
-    </span>
+    <span class="text-sm w-1/3">{{ props.day.day }}</span>
+    <img
+      class="w-6 h-6 mx-auto"
+      :src="`https://openweathermap.org/img/wn/${props.day.icon}.png`"
+      :alt="props.day.description"
+    />
     <span class="text-sm w-1/3 text-right">
-      {{ props.high }}° {{ props.low }}°
+      {{ props.day.temp_max }}° {{ props.day.temp_min }}°
     </span>
   </div>
 </template>

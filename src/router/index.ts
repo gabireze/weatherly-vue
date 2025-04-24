@@ -8,7 +8,7 @@ const routes = [
     component: WeatherApp,
   },
   {
-    path: "/day/:day",
+    path: "/day/:timestamp",
     name: "WeatherDetails",
     component: WeatherDetails,
     props: true,
