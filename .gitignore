@@ -1,25 +1,53 @@
-# Logs
-logs
-*.log
+# === Node ===
+node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
-node_modules
-dist
-dist-ssr
+# === Build outputs ===
+dist/
+dist-ssr/
+build/
 *.local
 
-# Editor directories and files
-.vscode/*
+# === Vite cache ===
+.vite/
+
+# === Test coverage ===
+coverage/
+
+# === Env files ===
+.env
+.env.*.local
+.env.local
+.env.*.local
+
+# === Editor configs ===
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.env
+
+# === Mac / Windows system files ===
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# === Optional: Firebase / Netlify / Vercel configs ===
+.firebase/
+.netlify/
+.vercel/
+
+# === Logs ===
+logs/
+*.log

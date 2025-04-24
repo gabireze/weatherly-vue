@@ -7,7 +7,6 @@ import { useI18n } from "vue-i18n";
 
 const store = useWeatherStore();
 const route = useRoute();
-
 const { t } = useI18n();
 
 const forecast = computed(() =>
@@ -19,6 +18,8 @@ const animations = import.meta.glob("../assets/lottie/*.json", {
   import: "default",
 });
 const selectedAnimation = ref();
+const loadingAnimation = animations["../assets/lottie/loading.json"];
+const fallbackAnimation = animations["../assets/lottie/01d.json"];
 
 watchEffect(() => {
   const iconCode = forecast.value?.icon;
@@ -26,8 +27,7 @@ watchEffect(() => {
     const match = Object.entries(animations).find(([path]) =>
       path.endsWith(`/${iconCode}.json`)
     );
-    selectedAnimation.value =
-      match?.[1] || animations["../assets/lottie/01d.json"];
+    selectedAnimation.value = match?.[1] || fallbackAnimation;
   }
 });
 </script>
@@ -65,9 +65,18 @@ watchEffect(() => {
               </div>
             </div>
           </template>
+
           <template v-else>
-            <div class="text-white/70 text-sm italic mt-4">
-              {{ t("weather.not_found") }}
+            <div class="flex flex-col items-center justify-center py-6">
+              <Vue3Lottie
+                :animationData="loadingAnimation"
+                :loop="true"
+                :autoplay="true"
+                style="width: 100px; height: 100px"
+              />
+              <p class="text-sm mt-2 text-white/60">
+                {{ t("weather.loading") }}
+              </p>
             </div>
           </template>
         </Transition>
@@ -82,3 +91,18 @@ watchEffect(() => {
     </div>
   </Transition>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active,
+.fade-page-enter-active,
+.fade-page-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter-from,
+.fade-leave-to,
+.fade-page-enter-from,
+.fade-page-leave-to {
+  opacity: 0;
+}
+</style>

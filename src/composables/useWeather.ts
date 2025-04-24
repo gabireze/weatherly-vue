@@ -7,7 +7,7 @@ import type { ForecastDay, CurrentWeather } from "../stores/weatherStore";
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 const DEFAULT_CITY = import.meta.env.VITE_WEATHER_CITY || "Campinas";
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const CACHE_TTL = 30 * 60 * 1000;
 
 export function useWeather() {
   const loading = ref(true);
@@ -79,7 +79,6 @@ export function useWeather() {
       };
       const locationParams = lat && lon ? { lat, lon } : { q: DEFAULT_CITY };
 
-      // Fetch current weather
       const weatherRes = await axios.get(`${BASE_URL}/weather`, {
         params: { ...baseParams, ...locationParams },
       });
@@ -100,7 +99,6 @@ export function useWeather() {
 
       store.setCurrent(current);
 
-      // Fetch forecast
       const forecastRes = await axios.get(`${BASE_URL}/forecast`, {
         params: { ...baseParams, ...locationParams },
       });

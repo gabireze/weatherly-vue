@@ -51,11 +51,11 @@ watchEffect(() => {
     <p class="text-md italic opacity-80">{{ props.current.description }}</p>
   </div>
 
-  <div class="grid grid-cols-2 gap-2 text-sm text-left mt-4">
+  <div class="grid grid-cols-2 gap-2 text-sm text-center mt-4">
     <p>🌡️ {{ t("weather.feels_like") }}: {{ props.current.feels_like }}°C</p>
+    <p>💧 {{ t("weather.humidity") }}: {{ props.current.humidity }}%</p>
     <p>🔺 {{ t("weather.max") }}: {{ props.current.temp_max }}°C</p>
     <p>🔻 {{ t("weather.min") }}: {{ props.current.temp_min }}°C</p>
-    <p>💧 {{ t("weather.humidity") }}: {{ props.current.humidity }}%</p>
     <p>🌬️ {{ t("weather.wind") }}: {{ props.current.wind_speed }} m/s</p>
     <p>🧭 {{ t("weather.direction") }}: {{ props.current.wind_deg }}°</p>
   </div>
