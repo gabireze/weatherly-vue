@@ -8,6 +8,7 @@ const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
 const DEFAULT_CITY = import.meta.env.VITE_WEATHER_CITY || "Campinas";
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
 const CACHE_TTL = 30 * 60 * 1000;
+const RATE_LIMIT = 60;
 
 export function useWeather() {
   const loading = ref(true);
@@ -31,7 +32,29 @@ export function useWeather() {
     });
   }
 
+  function getApiUsage(): number[] {
+    const data = JSON.parse(localStorage.getItem("weather-api-usage") || "[]");
+    return Array.isArray(data) ? data : [];
+  }
+
+  function registerApiCall(): void {
+    const now = Date.now();
+    const history = getApiUsage().filter((t) => now - t < 3600 * 1000);
+    history.push(now);
+    localStorage.setItem("weather-api-usage", JSON.stringify(history));
+  }
+
+  function isRateLimited(): boolean {
+    const usage = getApiUsage().filter((t) => Date.now() - t < 3600 * 1000);
+    return usage.length >= RATE_LIMIT;
+  }
+
   async function fetchWeather(): Promise<void> {
+    if (isRateLimited()) {
+      console.warn("API rate limit reached. Try again later.");
+      return;
+    }
+
     const now = Date.now();
     let lat: number | null = null;
     let lon: number | null = null;
@@ -82,6 +105,7 @@ export function useWeather() {
       const weatherRes = await axios.get(`${BASE_URL}/weather`, {
         params: { ...baseParams, ...locationParams },
       });
+      registerApiCall();
 
       const current: CurrentWeather = {
         city: weatherRes.data.name,
@@ -102,6 +126,7 @@ export function useWeather() {
       const forecastRes = await axios.get(`${BASE_URL}/forecast`, {
         params: { ...baseParams, ...locationParams },
       });
+      registerApiCall();
 
       const nowDate = new Date();
       const todayIso = new Date(
