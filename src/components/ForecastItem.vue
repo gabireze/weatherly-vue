@@ -8,7 +8,6 @@ const store = useWeatherStore();
 
 function goToDetails() {
   store.setForecast(props.day);
-  console.log("Forecast set:", props.day);
   router.push({
     name: "WeatherDetails",
     params: { timestamp: props.day.timestamp.toString() },
@@ -18,17 +17,26 @@ function goToDetails() {
 
 <template>
   <div
-    class="flex justify-between items-center border-t border-white/30 py-1 cursor-pointer hover:bg-white/10 transition"
     @click="goToDetails"
+    class="flex items-center justify-between py-2 px-4 rounded-lg hover:bg-white/10 cursor-pointer transition-all duration-200 group"
   >
-    <span class="text-sm w-1/3">{{ props.day.day }}</span>
+    <span
+      class="text-sm font-medium w-1/3 group-hover:scale-105 transition-transform"
+    >
+      {{ props.day.day }}<br />
+      <small>{{ props.day.date }}</small>
+    </span>
+
     <img
-      class="w-6 h-6 mx-auto"
+      class="w-8 h-8 transition-transform group-hover:scale-110"
       :src="`https://openweathermap.org/img/wn/${props.day.icon}.png`"
       :alt="props.day.description"
     />
-    <span class="text-sm w-1/3 text-right">
-      {{ props.day.temp_max }}° {{ props.day.temp_min }}°
+
+    <span class="text-sm font-medium w-1/3 text-right">
+      🔺{{ Math.round(props.day.temp_max) }}° 🔻{{
+        Math.round(props.day.temp_min)
+      }}°
     </span>
   </div>
 </template>

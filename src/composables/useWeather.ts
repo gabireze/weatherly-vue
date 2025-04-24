@@ -65,7 +65,7 @@ export function useWeather() {
       });
 
       const nowDate = new Date();
-      const localDateString = new Date(
+      const todayIso = new Date(
         nowDate.getFullYear(),
         nowDate.getMonth(),
         nowDate.getDate()
@@ -81,12 +81,13 @@ export function useWeather() {
       forecastRes.data.list.forEach((item: any) => {
         const timestamp = item.dt * 1000;
         const dateObj = new Date(timestamp);
-        const date = dateObj.toISOString().split("T")[0];
 
-        if (date <= localDateString) return; // ignora hoje e dias passados
+        const isoDate = dateObj.toISOString().split("T")[0];
+        if (isoDate <= todayIso) return;
 
-        const day = dateObj.toLocaleDateString("pt-BR", { weekday: "short" });
-        const dayTimestamp = new Date(`${date}T12:00:00`).getTime();
+        const date = dateObj.toLocaleDateString("pt-BR"); // dd/mm/aaaa
+        const day = dateObj.toLocaleDateString("pt-BR", { weekday: "short" }); // ex: "qui"
+        const dayTimestamp = new Date(`${isoDate}T12:00:00`).getTime();
 
         if (!dayMap[date]) {
           dayMap[date] = {

@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+import { ref, watchEffect } from "vue";
+import { Vue3Lottie } from "vue3-lottie";
+
 interface CurrentWeather {
   city: string;
   temp: number;
@@ -14,31 +17,45 @@ interface CurrentWeather {
 }
 
 const props = defineProps<{ current: CurrentWeather }>();
+
+const animations = import.meta.glob("../assets/lottie/*.json", {
+  eager: true,
+  import: "default",
+});
+const selectedAnimation = ref();
+
+watchEffect(() => {
+  const iconCode = props.current.icon;
+  const match = Object.entries(animations).find(([path]) =>
+    path.includes(`${iconCode}.json`)
+  );
+  selectedAnimation.value =
+    match?.[1] || animations["../assets/lottie/01d.json"];
+});
 </script>
 
 <template>
-  <div class="text-center mb-4">
-    <h1 class="text-2xl font-bold">{{ props.current.city }}</h1>
-    <img
-      class="w-16 h-16 mx-auto"
-      :src="`https://openweathermap.org/img/wn/${props.current.icon}@2x.png`"
-      :alt="props.current.description"
+  <div class="text-center mb-6">
+    <h1 class="text-3xl font-semibold">{{ props.current.city }}</h1>
+
+    <Vue3Lottie
+      v-if="selectedAnimation"
+      :animationData="selectedAnimation"
+      :loop="true"
+      :autoplay="true"
+      style="width: 120px; height: 120px; margin: auto"
     />
-    <div class="text-6xl font-light my-2">{{ props.current.temp }}°C</div>
-    <p class="text-sm mb-2 italic">{{ props.current.description }}</p>
+
+    <div class="text-6xl font-thin mt-2">{{ props.current.temp }}°C</div>
+    <p class="text-md italic opacity-80">{{ props.current.description }}</p>
   </div>
 
-  <div class="text-left text-sm space-y-1">
-    <p>Sensação térmica: {{ props.current.feels_like }}°C</p>
-    <p>
-      Mínima: {{ props.current.temp_min }}°C | Máxima:
-      {{ props.current.temp_max }}°C
-    </p>
-    <p>Pressão: {{ props.current.pressure }} hPa</p>
-    <p>Umidade: {{ props.current.humidity }}%</p>
-    <p>
-      Vento: {{ props.current.wind_speed }} m/s, direção
-      {{ props.current.wind_deg }}°
-    </p>
+  <div class="grid grid-cols-2 gap-2 text-sm text-left mt-4">
+    <p>🌡️ Sensação: {{ props.current.feels_like }}°C</p>
+    <p>🔺 Máx: {{ props.current.temp_max }}°C</p>
+    <p>🔻 Mín: {{ props.current.temp_min }}°C</p>
+    <p>💧 Umidade: {{ props.current.humidity }}%</p>
+    <p>🌬️ Vento: {{ props.current.wind_speed }} m/s</p>
+    <p>🧭 Direção: {{ props.current.wind_deg }}°</p>
   </div>
 </template>
