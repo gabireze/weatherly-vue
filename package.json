@@ -1,12 +1,37 @@
 {
-  "name": "weatherly-vue2007",
+  "name": "weatherly-vue",
+  "version": "1.0.0",
   "private": true,
-  "version": "0.0.0",
+  "description": "A sleek and modern weather forecast app built with Vue 3, Tailwind, and Lottie animations.",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
     "preview": "vite preview"
+  },
+  "keywords": [
+    "weather",
+    "forecast",
+    "climate",
+    "vue",
+    "api",
+    "location",
+    "lottie",
+    "modern"
+  ],
+  "author": {
+    "name": "Gabriel de Rezende Gonçalves",
+    "email": "contato@gabireze.com.br",
+    "url": "https://gabireze.com.br/"
+  },
+  "license": "MIT",
+  "homepage": "https://weatherly-vue.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gabireze/weatherly-vue"
+  },
+  "bugs": {
+    "url": "https://github.com/gabireze/weatherly-vue/issues"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
