@@ -1,26 +1,69 @@
-import axios from "axios";
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
+import axios from "axios";
 import { useWeatherStore } from "../stores/weatherStore";
 import type { ForecastDay, CurrentWeather } from "../stores/weatherStore";
 
 const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
-const CITY = import.meta.env.VITE_WEATHER_CITY || "Campinas";
+const DEFAULT_CITY = import.meta.env.VITE_WEATHER_CITY || "Campinas";
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutos
+const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
 
 export function useWeather() {
   const loading = ref(true);
   const store = useWeatherStore();
+  const { locale } = useI18n();
+
+  function getUserLocation(): Promise<{ lat: number; lon: number }> {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject("Geolocation not supported");
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          });
+        },
+        (err) => reject(err),
+        { timeout: 10000 }
+      );
+    });
+  }
 
   async function fetchWeather(): Promise<void> {
     const now = Date.now();
-    const cachedAt = Number(localStorage.getItem("weather-cached-at"));
+    let lat: number | null = null;
+    let lon: number | null = null;
+    let locationChanged = false;
 
-    if (
-      store.current &&
-      store.forecast.length > 0 &&
-      now - cachedAt < CACHE_TTL
-    ) {
+    try {
+      const location = await getUserLocation();
+      lat = location.lat;
+      lon = location.lon;
+
+      const previous = JSON.parse(
+        localStorage.getItem("weather-last-location") || "null"
+      );
+      const current = { lat, lon };
+
+      if (
+        !previous ||
+        Math.abs(previous.lat - current.lat) > 0.01 ||
+        Math.abs(previous.lon - current.lon) > 0.01
+      ) {
+        locationChanged = true;
+        localStorage.setItem("weather-last-location", JSON.stringify(current));
+      }
+    } catch {
+      console.warn("Geolocation failed, using default city");
+    }
+
+    const cachedAt = Number(localStorage.getItem("weather-cached-at"));
+    const isCacheValid =
+      store.current && store.forecast.length > 0 && now - cachedAt < CACHE_TTL;
+
+    if (isCacheValid && !locationChanged) {
       loading.value = false;
       return;
     }
@@ -28,14 +71,17 @@ export function useWeather() {
     loading.value = true;
 
     try {
-      // 1. Clima atual
+      const lang = locale.value === "pt-BR" ? "pt_br" : "en";
+      const baseParams = {
+        units: "metric",
+        lang,
+        appid: API_KEY,
+      };
+      const locationParams = lat && lon ? { lat, lon } : { q: DEFAULT_CITY };
+
+      // Fetch current weather
       const weatherRes = await axios.get(`${BASE_URL}/weather`, {
-        params: {
-          q: CITY,
-          units: "metric",
-          lang: "pt_br",
-          appid: API_KEY,
-        },
+        params: { ...baseParams, ...locationParams },
       });
 
       const current: CurrentWeather = {
@@ -54,14 +100,9 @@ export function useWeather() {
 
       store.setCurrent(current);
 
-      // 2. Previsão para os próximos dias
+      // Fetch forecast
       const forecastRes = await axios.get(`${BASE_URL}/forecast`, {
-        params: {
-          q: CITY,
-          units: "metric",
-          lang: "pt_br",
-          appid: API_KEY,
-        },
+        params: { ...baseParams, ...locationParams },
       });
 
       const nowDate = new Date();
@@ -81,12 +122,13 @@ export function useWeather() {
       forecastRes.data.list.forEach((item: any) => {
         const timestamp = item.dt * 1000;
         const dateObj = new Date(timestamp);
-
         const isoDate = dateObj.toISOString().split("T")[0];
         if (isoDate <= todayIso) return;
 
-        const date = dateObj.toLocaleDateString("pt-BR"); // dd/mm/aaaa
-        const day = dateObj.toLocaleDateString("pt-BR", { weekday: "short" }); // ex: "qui"
+        const date = dateObj.toLocaleDateString(locale.value);
+        const day = dateObj.toLocaleDateString(locale.value, {
+          weekday: "short",
+        });
         const dayTimestamp = new Date(`${isoDate}T12:00:00`).getTime();
 
         if (!dayMap[date]) {
@@ -128,7 +170,7 @@ export function useWeather() {
       store.setForecastList(forecastList);
       localStorage.setItem("weather-cached-at", now.toString());
     } catch (error) {
-      console.error("Erro ao buscar dados do clima:", error);
+      console.error("Error fetching weather data:", error);
     }
 
     loading.value = false;

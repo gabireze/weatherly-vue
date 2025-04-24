@@ -1,0 +1,14 @@
+{
+  "weather": {
+    "feels_like": "Feels like",
+    "max": "Max",
+    "min": "Min",
+    "humidity": "Humidity",
+    "wind": "Wind",
+    "direction": "Direction",
+    "temperature": "Temperature",
+    "details": "Day details",
+    "not_found": "Data unavailable.\nReturn to the home screen.",
+    "back": "← Back"
+  }
+}

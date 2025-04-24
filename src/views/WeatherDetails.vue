@@ -3,9 +3,12 @@ import { ref, watchEffect, computed } from "vue";
 import { useWeatherStore } from "../stores/weatherStore";
 import { useRoute } from "vue-router";
 import { Vue3Lottie } from "vue3-lottie";
+import { useI18n } from "vue-i18n";
 
 const store = useWeatherStore();
 const route = useRoute();
+
+const { t } = useI18n();
 
 const forecast = computed(() =>
   store.forecast.find((f) => f.timestamp === Number(route.params.timestamp))
@@ -54,18 +57,17 @@ watchEffect(() => {
               <p class="text-lg font-medium mt-4">{{ forecast.description }}</p>
               <div class="text-sm mt-4 space-y-1">
                 <p>
-                  🌡️ Temperatura: {{ forecast.temp_min }}°C ~
+                  🌡️ {{ t("weather.temperature") }}: {{ forecast.temp_min }}°C ~
                   {{ forecast.temp_max }}°C
                 </p>
-                <p>💧 Umidade: {{ forecast.humidity }}%</p>
-                <p>🌬️ Vento: {{ forecast.wind_speed }} m/s</p>
+                <p>💧 {{ t("weather.humidity") }}: {{ forecast.humidity }}%</p>
+                <p>🌬️ {{ t("weather.wind") }}: {{ forecast.wind_speed }} m/s</p>
               </div>
             </div>
           </template>
           <template v-else>
             <div class="text-white/70 text-sm italic mt-4">
-              Dados indisponíveis.<br />
-              Volte para a tela inicial.
+              {{ t("weather.not_found") }}
             </div>
           </template>
         </Transition>
@@ -74,24 +76,9 @@ watchEffect(() => {
           to="/"
           class="inline-block mt-6 underline text-blue-300 hover:text-white transition text-sm"
         >
-          ← Voltar
+          {{ t("weather.back") }}
         </router-link>
       </div>
     </div>
   </Transition>
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active,
-.fade-page-enter-active,
-.fade-page-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter-from,
-.fade-leave-to,
-.fade-page-enter-from,
-.fade-page-leave-to {
-  opacity: 0;
-}
-</style>

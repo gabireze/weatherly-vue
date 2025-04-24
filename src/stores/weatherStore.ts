@@ -1,10 +1,9 @@
-// stores/weatherStore.ts
 import { defineStore } from "pinia";
 
 export interface ForecastDay {
-  date: string; // ISO format (yyyy-mm-dd)
+  date: string;
   timestamp: number;
-  day: string; // ex: 'Seg'
+  day: string;
   temp_min: number;
   temp_max: number;
   weather: string;

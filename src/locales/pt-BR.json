@@ -1,0 +1,14 @@
+{
+  "weather": {
+    "feels_like": "Sensação",
+    "max": "Máxima",
+    "min": "Mínima",
+    "humidity": "Umidade",
+    "wind": "Vento",
+    "direction": "Direção",
+    "temperature": "Temperatura",
+    "details": "Detalhes do dia",
+    "not_found": "Dados indisponíveis.\nVolte para a tela inicial.",
+    "back": "← Voltar"
+  }
+}
